@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -547,8 +548,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             SizedBox(
               height: 34,
               child: ElevatedButton(
-                onPressed: () {
-                  // Follow/unfollow via profile provider
+                onPressed: () async {
+                  try {
+                    await Supabase.instance.client.rpc('toggle_follow', params: {
+                      'p_follower_id': Supabase.instance.client.auth.currentUser!.id,
+                      'p_following_id': user.id,
+                    });
+                    ref.invalidate(searchResultsProvider);
+                  } catch (_) {}
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: user.isFollowing

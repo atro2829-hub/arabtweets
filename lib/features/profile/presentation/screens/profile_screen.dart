@@ -40,13 +40,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     super.dispose();
   }
 
+  String? _resolvedUserId;
+
+  String get _effectiveUserId => _resolvedUserId ?? widget.userId;
+
   bool get _isOwnProfile {
     final current = ref.read(currentUserProvider);
-    return current?.id == widget.userId;
+    return current?.id == _effectiveUserId;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Resolve 'me' to actual user ID
+    final resolvedUserId = widget.userId == 'me'
+        ? (ref.read(currentUserProvider)?.id ?? '')
+        : widget.userId;
+    _resolvedUserId = resolvedUserId;
+
+    if (resolvedUserId.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final backgroundColor =
@@ -54,7 +72,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final surfaceColor =
         isDark ? AppColors.darkSurface : AppColors.lightSurface;
 
-    final profileAsync = ref.watch(profileProvider(widget.userId));
+    final profileAsync = ref.watch(profileProvider(resolvedUserId));
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -584,7 +602,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ? OutlinedButton(
                   onPressed: () {
                     ref
-                        .read(profileProvider(widget.userId).notifier)
+                        .read(profileProvider(_effectiveUserId).notifier)
                         .toggleFollow();
                   },
                   style: OutlinedButton.styleFrom(
@@ -610,7 +628,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               : ElevatedButton(
                   onPressed: () {
                     ref
-                        .read(profileProvider(widget.userId).notifier)
+                        .read(profileProvider(_effectiveUserId).notifier)
                         .toggleFollow();
                   },
                   style: ElevatedButton.styleFrom(
@@ -635,7 +653,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           height: 40,
           child: OutlinedButton(
             onPressed: () {
-              context.push('/messages/${widget.userId}');
+              context.push('/messages/$_effectiveUserId');
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: isDark
@@ -663,7 +681,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   // ─── Tab Views ───────────────────────────────────────────────────────────
 
   Widget _buildTweetsTab(bool isDark) {
-    final tweetsAsync = ref.watch(userTweetsProvider(widget.userId));
+    final tweetsAsync = ref.watch(userTweetsProvider(_effectiveUserId));
 
     return tweetsAsync.when(
       loading: () => _buildTabShimmer(isDark),
@@ -681,6 +699,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               tweet: tweet,
               index: index,
               onTap: () => context.push('/tweet/${tweet.id}'),
+              onDelete: (id) => ref.invalidate(userTweetsProvider(_effectiveUserId)),
             );
           },
         );
@@ -689,7 +708,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Widget _buildRepliesTab(bool isDark) {
-    final repliesAsync = ref.watch(userRepliesProvider(widget.userId));
+    final repliesAsync = ref.watch(userRepliesProvider(_effectiveUserId));
 
     return repliesAsync.when(
       loading: () => _buildTabShimmer(isDark),
@@ -707,6 +726,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               tweet: tweet,
               index: index,
               onTap: () => context.push('/tweet/${tweet.id}'),
+              onDelete: (id) => ref.invalidate(userRepliesProvider(_effectiveUserId)),
             );
           },
         );
@@ -715,7 +735,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Widget _buildLikesTab(bool isDark) {
-    final likesAsync = ref.watch(userLikesProvider(widget.userId));
+    final likesAsync = ref.watch(userLikesProvider(_effectiveUserId));
 
     return likesAsync.when(
       loading: () => _buildTabShimmer(isDark),
@@ -733,6 +753,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               tweet: tweet,
               index: index,
               onTap: () => context.push('/tweet/${tweet.id}'),
+              onDelete: (id) => ref.invalidate(userLikesProvider(_effectiveUserId)),
             );
           },
         );
@@ -741,7 +762,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Widget _buildMediaTab(bool isDark) {
-    final mediaAsync = ref.watch(userMediaProvider(widget.userId));
+    final mediaAsync = ref.watch(userMediaProvider(_effectiveUserId));
 
     return mediaAsync.when(
       loading: () => _buildTabShimmer(isDark),
@@ -878,7 +899,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           const SizedBox(height: 12),
           TextButton(
             onPressed: () {
-              ref.invalidate(userTweetsProvider(widget.userId));
+              ref.invalidate(userTweetsProvider(_effectiveUserId));
             },
             child: const Text('إعادة المحاولة'),
           ),
@@ -1011,7 +1032,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: () {
-                ref.invalidate(profileProvider(widget.userId));
+                ref.invalidate(profileProvider(_effectiveUserId));
               },
               icon: const Icon(Icons.refresh, size: 18),
               label: const Text('إعادة المحاولة'),

@@ -103,6 +103,7 @@ class _TweetDetailScreenState extends ConsumerState<TweetDetailScreen> {
                       ComposeTweetSheet.show(context: context, parentId: id);
                     },
                     onBookmark: (_) => ref.read(tweetDetailProvider(widget.tweetId).notifier).toggleBookmark(),
+                    onDelete: (_) => ref.invalidate(tweetDetailProvider(widget.tweetId)),
                   ),
                 ),
 

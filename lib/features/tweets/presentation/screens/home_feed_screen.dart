@@ -243,6 +243,7 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
             },
             onBookmark: (id) =>
                 ref.read(feedProvider.notifier).toggleBookmark(id),
+            onDelete: (id) => ref.invalidate(feedProvider),
             onTap: () {
               // Navigate to tweet detail
               context.push('/tweet/${tweet.id}');

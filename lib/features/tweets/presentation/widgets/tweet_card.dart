@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:photo_view/photo_view.dart';
@@ -22,6 +23,7 @@ class TweetCard extends StatefulWidget {
   final TweetActionCallback? onRetweet;
   final TweetActionCallback? onReply;
   final TweetActionCallback? onBookmark;
+  final TweetActionCallback? onDelete;
   final VoidCallback? onTap;
 
   const TweetCard({
@@ -32,6 +34,7 @@ class TweetCard extends StatefulWidget {
     this.onRetweet,
     this.onReply,
     this.onBookmark,
+    this.onDelete,
     this.onTap,
   });
 
@@ -236,7 +239,6 @@ class _TweetCardState extends State<TweetCard> {
   // ── Content with hashtag & mention highlighting ───────────────────────
 
   Widget _buildContent(TweetModel tweet, ThemeData theme) {
-    final isDark = theme.brightness == Brightness.dark;
     final content = tweet.content;
 
     return RichText(
@@ -265,7 +267,6 @@ class _TweetCardState extends State<TweetCard> {
       }
 
       final matchedText = match.group(0)!;
-      final isHashtag = matchedText.startsWith('#');
 
       spans.add(TextSpan(
         text: matchedText,
@@ -675,8 +676,11 @@ class _TweetCardState extends State<TweetCard> {
                 leading: const Icon(Icons.link, color: AppColors.primary),
                 title: const Text('نسخ رابط التغريدة'),
                 onTap: () {
+                  Clipboard.setData(ClipboardData(text: 'https://buvcyaxgxrbjdikefsyq.supabase.co/tweet/${widget.tweet.id}'));
                   Navigator.pop(context);
-                  // Copy link logic
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم نسخ الرابط'), duration: Duration(seconds: 2)),
+                  );
                 },
               ),
               ListTile(
@@ -684,7 +688,6 @@ class _TweetCardState extends State<TweetCard> {
                 title: const Text('مشاركة'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Share logic
                 },
               ),
               ListTile(
@@ -692,19 +695,26 @@ class _TweetCardState extends State<TweetCard> {
                 title: const Text('كتم المستخدم'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Mute logic
                 },
               ),
-              if (tweet.userId == Supabase.instance.client.auth.currentUser?.id)
+              if (widget.tweet.userId == Supabase.instance.client.auth.currentUser?.id)
                 ListTile(
                   leading: const Icon(Icons.delete, color: AppColors.error),
                   title: const Text(
                     'حذف التغريدة',
                     style: TextStyle(color: AppColors.error),
                   ),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    // Delete logic
+                    try {
+                      await Supabase.instance.client.from('tweets').delete().eq('id', widget.tweet.id);
+                      widget.onDelete?.call(widget.tweet.id);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('تم حذف التغريدة'), duration: Duration(seconds: 2)),
+                        );
+                      }
+                    } catch (_) {}
                   },
                 ),
               const SizedBox(height: 8),

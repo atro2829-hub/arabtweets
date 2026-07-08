@@ -39,7 +39,7 @@ void main() async {
 
   // Initialize shared preferences
   final prefs = await SharedPreferences.getInstance();
-  final isDark = prefs.getBool('isDarkMode') ?? false;
+  final isDark = prefs.getBool('is_dark_mode') ?? false;
 
   runApp(
     ProviderScope(

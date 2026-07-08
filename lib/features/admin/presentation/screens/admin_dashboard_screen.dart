@@ -169,7 +169,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
 
     return usersAsync.when(
       loading: () => _buildShimmerLoading(isDark),
-      error: (error, _) => _buildError(error, textPrimary),
+      error: (error, _) => _buildError(error, textPrimary, textSecondary),
       data: (users) {
         if (users.isEmpty) {
           return _buildEmpty('لا يوجد مستخدمين بعد', isDark, textSecondary);
@@ -427,7 +427,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
 
     return statsAsync.when(
       loading: () => _buildShimmerLoading(isDark),
-      error: (error, _) => _buildError(error, textPrimary),
+      error: (error, _) => _buildError(error, textPrimary, textSecondary),
       data: (stats) {
         final totalTweets = stats['total_tweets'] as int? ?? 0;
         return _buildEmpty(
@@ -446,7 +446,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
 
     return reportsAsync.when(
       loading: () => _buildShimmerLoading(isDark),
-      error: (error, _) => _buildError(error, textPrimary),
+      error: (error, _) => _buildError(error, textPrimary, textSecondary),
       data: (reports) {
         if (reports.isEmpty) {
           return _buildEmpty('لا توجد بلاغات', isDark, textSecondary);
@@ -710,7 +710,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
 
   // ─── Error State ─────────────────────────────────────────────────────────
 
-  Widget _buildError(Object error, Color textPrimary) {
+  Widget _buildError(Object error, Color textPrimary, Color textSecondary) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -729,7 +729,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
           const SizedBox(height: 8),
           Text(
             error.toString(),
-            style: TextStyle(fontSize: 13, color: AppColors.darkTextSecondary),
+            style: TextStyle(fontSize: 13, color: textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
