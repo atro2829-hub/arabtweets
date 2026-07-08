@@ -260,18 +260,21 @@ class TweetDetailNotifier extends AsyncNotifier<TweetDetailState> {
         'p_quote_tweet_id': null,
       });
 
-      final newReplyData = response as Map<String, dynamic>;
-      final newReply = TweetModel.fromJson(newReplyData);
+      // create_tweet now returns a TABLE (list of rows with tweet + profile data)
+      final List<dynamic> data = response as List<dynamic>? ?? [];
+      if (data.isNotEmpty) {
+        final newReply = TweetModel.fromJson(data[0] as Map<String, dynamic>);
 
-      // Update the parent tweet's reply count optimistically
-      final updatedTweet = currentState.tweet?.copyWith(
-        replyCount: currentState.tweet!.replyCount + 1,
-      );
+        // Update the parent tweet's reply count optimistically
+        final updatedTweet = currentState.tweet?.copyWith(
+          replyCount: currentState.tweet!.replyCount + 1,
+        );
 
-      state = AsyncData(currentState.copyWith(
-        tweet: updatedTweet,
-        replies: [newReply, ...currentState.replies],
-      ));
+        state = AsyncData(currentState.copyWith(
+          tweet: updatedTweet,
+          replies: [newReply, ...currentState.replies],
+        ));
+      }
     } catch (e) {
       rethrow;
     }

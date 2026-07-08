@@ -239,11 +239,13 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
         'p_quote_tweet_id': quoteTweetId,
       });
 
-      final newTweetData = response as Map<String, dynamic>;
-      final newTweet = TweetModel.fromJson(newTweetData);
-
-      final currentTweets = state.value ?? [];
-      state = AsyncData([newTweet, ...currentTweets]);
+      // create_tweet now returns a TABLE (list of rows with tweet + profile data)
+      final List<dynamic> data = response as List<dynamic>? ?? [];
+      if (data.isNotEmpty) {
+        final newTweet = TweetModel.fromJson(data[0] as Map<String, dynamic>);
+        final currentTweets = state.value ?? [];
+        state = AsyncData([newTweet, ...currentTweets]);
+      }
     } catch (e) {
       rethrow;
     }

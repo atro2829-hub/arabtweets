@@ -245,35 +245,42 @@ BEGIN
     SELECT t.id, t.user_id, t.content, t.media_urls, t.parent_id, t.is_quote,
         t.quote_tweet_id, t.reply_count, t.retweet_count, t.like_count, t.view_count,
         t.bookmark_count, t.created_at, p.username, p.display_name, p.avatar_url, p.is_verified,
-        EXISTS(SELECT 1 FROM likes WHERE tweet_id = t.id AND user_id = p_user_id),
-        EXISTS(SELECT 1 FROM retweets WHERE tweet_id = t.id AND user_id = p_user_id),
-        EXISTS(SELECT 1 FROM bookmarks WHERE tweet_id = t.id AND user_id = p_user_id),
-        EXISTS(SELECT 1 FROM follows WHERE follower_id = p_user_id AND following_id = t.user_id)
+        EXISTS(SELECT 1 FROM likes l WHERE l.tweet_id = t.id AND l.user_id = p_user_id),
+        EXISTS(SELECT 1 FROM retweets r WHERE r.tweet_id = t.id AND r.user_id = p_user_id),
+        EXISTS(SELECT 1 FROM bookmarks b WHERE b.tweet_id = t.id AND b.user_id = p_user_id),
+        EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = p_user_id AND fw.following_id = t.user_id)
     FROM tweets t
     JOIN profiles p ON t.user_id = p.id
-    WHERE (t.user_id = p_user_id OR EXISTS (SELECT 1 FROM follows WHERE follower_id = p_user_id AND following_id = t.user_id))
+    WHERE (t.user_id = p_user_id OR EXISTS (SELECT 1 FROM follows fw2 WHERE fw2.follower_id = p_user_id AND fw2.following_id = t.user_id))
     AND t.parent_id IS NULL
     ORDER BY t.created_at DESC
     LIMIT p_limit OFFSET p_offset;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION get_tweet_replies(p_tweet_id BIGINT, p_limit INT DEFAULT 20, p_offset INT DEFAULT 0)
+CREATE OR REPLACE FUNCTION get_tweet_replies(
+    p_tweet_id BIGINT,
+    p_user_id UUID DEFAULT NULL,
+    p_limit INT DEFAULT 20,
+    p_offset INT DEFAULT 0
+)
 RETURNS TABLE (
     id BIGINT, user_id UUID, content TEXT, media_urls TEXT[], parent_id BIGINT,
     reply_count INT, retweet_count INT, like_count INT, view_count INT, bookmark_count INT,
     created_at TIMESTAMPTZ, username VARCHAR(30), display_name VARCHAR(60), avatar_url TEXT, is_verified BOOLEAN,
     is_liked BOOLEAN, is_retweeted BOOLEAN, is_bookmarked BOOLEAN
 ) AS $$
+DECLARE v_user UUID := COALESCE(p_user_id, '00000000-0000-0000-0000-000000000000'::UUID);
 BEGIN
     RETURN QUERY
     SELECT t.id, t.user_id, t.content, t.media_urls, t.parent_id,
         t.reply_count, t.retweet_count, t.like_count, t.view_count, t.bookmark_count, t.created_at,
-        p.username, p.display_name, p.avatar_url, p.is_verified,
-        EXISTS(SELECT 1 FROM likes WHERE tweet_id = t.id AND user_id = COALESCE((SELECT user_id FROM tweets WHERE id = p_tweet_id), '00000000-0000-0000-0000-000000000000'::UUID)),
-        false, false
+        pr.username, pr.display_name, pr.avatar_url, pr.is_verified,
+        EXISTS(SELECT 1 FROM likes l WHERE l.tweet_id = t.id AND l.user_id = v_user),
+        EXISTS(SELECT 1 FROM retweets r WHERE r.tweet_id = t.id AND r.user_id = v_user),
+        EXISTS(SELECT 1 FROM bookmarks b WHERE b.tweet_id = t.id AND b.user_id = v_user)
     FROM tweets t
-    JOIN profiles p ON t.user_id = p.id
+    JOIN profiles pr ON t.user_id = pr.id
     WHERE t.parent_id = p_tweet_id
     ORDER BY t.created_at ASC
     LIMIT p_limit OFFSET p_offset;
@@ -444,34 +451,47 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION create_tweet(
     p_user_id UUID, p_content TEXT, p_media_urls TEXT[] DEFAULT '{}',
     p_parent_id BIGINT DEFAULT NULL, p_quote_tweet_id BIGINT DEFAULT NULL
-) RETURNS BIGINT AS $$
+)
+RETURNS TABLE (
+    id BIGINT, user_id UUID, content TEXT, media_urls TEXT[], parent_id BIGINT,
+    is_quote BOOLEAN, quote_tweet_id BIGINT, reply_count INT, retweet_count INT,
+    like_count INT, view_count INT, bookmark_count INT, created_at TIMESTAMPTZ,
+    username VARCHAR(30), display_name VARCHAR(60), avatar_url TEXT, is_verified BOOLEAN
+) AS $$
 DECLARE v_tweet_id BIGINT; v_tag_text TEXT;
 BEGIN
     INSERT INTO tweets (user_id, content, media_urls, parent_id, quote_tweet_id)
     VALUES (p_user_id, p_content, p_media_urls, p_parent_id, p_quote_tweet_id)
     RETURNING id INTO v_tweet_id;
-    
+
     FOR v_tag_text IN SELECT DISTINCT (regexp_matches(p_content, '#([a-zA-Z0-9_\u0600-\u06FF]+)', 'g'))[1] LOOP
         INSERT INTO hashtags (tag) VALUES (v_tag_text) ON CONFLICT (tag) DO NOTHING;
         INSERT INTO tweet_hashtags (tweet_id, hashtag_id)
         SELECT v_tweet_id, h.id FROM hashtags h WHERE h.tag = v_tag_text ON CONFLICT DO NOTHING;
         UPDATE hashtags SET tweet_count = tweet_count + 1 WHERE tag = v_tag_text;
     END LOOP;
-    
+
     FOR v_tag_text IN SELECT DISTINCT (regexp_matches(p_content, '@([a-zA-Z0-9_]+)', 'g'))[1] LOOP
         INSERT INTO mentions (tweet_id, mentioned_user_id)
-        SELECT v_tweet_id, p.id FROM profiles p WHERE p.username = v_tag_text ON CONFLICT DO NOTHING;
+        SELECT v_tweet_id, pr.id FROM profiles pr WHERE pr.username = v_tag_text ON CONFLICT DO NOTHING;
         INSERT INTO notifications (user_id, from_user_id, type, tweet_id)
-        SELECT p.id, p_user_id, 'mention', v_tweet_id FROM profiles p WHERE p.username = v_tag_text AND p.id != p_user_id ON CONFLICT DO NOTHING;
+        SELECT pr.id, p_user_id, 'mention', v_tweet_id FROM profiles pr WHERE pr.username = v_tag_text AND pr.id != p_user_id ON CONFLICT DO NOTHING;
     END LOOP;
-    
+
     IF p_parent_id IS NOT NULL THEN
         UPDATE tweets SET reply_count = reply_count + 1 WHERE id = p_parent_id;
         INSERT INTO notifications (user_id, from_user_id, type, tweet_id)
         SELECT t.user_id, p_user_id, 'reply', v_tweet_id FROM tweets t WHERE t.id = p_parent_id AND t.user_id != p_user_id ON CONFLICT DO NOTHING;
     END IF;
-    
-    RETURN v_tweet_id;
+
+    RETURN QUERY
+    SELECT t.id, t.user_id, t.content, t.media_urls, t.parent_id,
+        t.is_quote, t.quote_tweet_id, t.reply_count, t.retweet_count,
+        t.like_count, t.view_count, t.bookmark_count, t.created_at,
+        pr.username, pr.display_name, pr.avatar_url, pr.is_verified
+    FROM tweets t
+    JOIN profiles pr ON t.user_id = pr.id
+    WHERE t.id = v_tweet_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

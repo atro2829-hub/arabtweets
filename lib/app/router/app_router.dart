@@ -20,6 +20,7 @@ import '../../features/settings/presentation/screens/cookies_screen.dart';
 import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/reels/presentation/screens/reels_screen.dart';
 import '../../features/messages/presentation/screens/chat_screen.dart';
+import '../../features/tweets/presentation/screens/tweet_detail_screen.dart';
 
 // ─── Main Navigation Shell ──────────────────────────────────────────────────
 
@@ -270,6 +271,14 @@ final appRouter = GoRouter(
       path: '/profile/edit',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EditProfileScreen(),
+    ),
+    GoRoute(
+      path: '/tweet/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final tweetId = int.parse(state.pathParameters['id']!);
+        return TweetDetailScreen(tweetId: tweetId);
+      },
     ),
     GoRoute(
       path: '/chat/:conversationId',
