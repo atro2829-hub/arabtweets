@@ -35,6 +35,11 @@ jobs:
           echo "flutter.sdk=$FLUTTER_HOME" > android/local.properties
           echo "sdk.dir=$ANDROID_HOME" >> android/local.properties
 
+      - name: Accept Android SDK licenses & Install NDK
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "ndk;26.1.10909125" 2>&1 || echo "NDK install attempted"
+
       - name: Build APK (release)
         run: flutter build apk --release --build-number=${{ github.run_number }}
 
