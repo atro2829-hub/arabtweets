@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.arabtweets.arabtweets"
-    compileSdk = 34
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
