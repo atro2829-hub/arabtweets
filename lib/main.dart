@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import 'app/router/app_router.dart';
 import 'app/theme/app_theme.dart';
@@ -61,7 +62,6 @@ class _ArabtweetsAppState extends ConsumerState<ArabtweetsApp> {
   void initState() {
     super.initState();
     // Initialize theme with stored preference
-
   }
 
   @override
@@ -73,20 +73,26 @@ class _ArabtweetsAppState extends ConsumerState<ArabtweetsApp> {
       debugShowCheckedModeBanner: false,
 
       // Theme
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: lightTheme(),
+      darkTheme: darkTheme(),
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
 
       // Router
       routerConfig: appRouter,
 
-      // Builder for RTL and text direction
-      builder: (context, child) {
-        return Directionality(
+      // Builder for responsive breakpoints and RTL direction
+      builder: (context, child) => ResponsiveBreakpoints.builder(
+        child: Directionality(
           textDirection: TextDirection.rtl,
           child: child!,
-        );
-      },
+        ),
+        breakpoints: [
+          const Breakpoint(start: 0, end: 450, name: MOBILE),
+          const Breakpoint(start: 451, end: 800, name: TABLET),
+          const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+          const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+        ],
+      ),
     );
   }
 }

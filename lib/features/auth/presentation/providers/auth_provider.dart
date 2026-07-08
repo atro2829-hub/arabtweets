@@ -183,28 +183,8 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
         },
       );
 
-      final userId = response.user?.id;
-      if (userId == null) {
-        throw const AuthException('فشل إنشاء الحساب');
-      }
-
-      // 2. Insert profile record
-      await _supabase.from('profiles').insert({
-        'id': userId,
-        'username': username.trim(),
-        'display_name': displayName.trim(),
-        'bio': '',
-        'avatar_url': '',
-        'cover_url': '',
-        'location': '',
-        'website': '',
-        'is_verified': false,
-      });
-
-      // 3. First user ever = admin (one-time only)
-      await _supabase.rpc('make_first_admin', params: {'p_user_id': userId});
-
-      // The onAuthStateChange listener will handle the rest.
+      // Profile is auto-created by the DB trigger `handle_new_user()`.
+      // The onAuthStateChange listener will fetch the profile and update state.
       // Email confirmation is disabled, so user goes directly to app.
     } on AuthException catch (e) {
       state = state.copyWith(

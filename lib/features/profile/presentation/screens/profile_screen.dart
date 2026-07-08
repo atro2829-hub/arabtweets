@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
@@ -792,12 +792,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   // ─── Tab Shimmer ─────────────────────────────────────────────────────────
 
   Widget _buildTabShimmer(bool isDark) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor = isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 5,
@@ -808,46 +805,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.rtl,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                CircleAvatar(radius: 22, backgroundColor: boneColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 120, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 6),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: MediaQuery.of(context).size.width * 0.6, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
                 ),
@@ -921,9 +890,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   // ─── Shimmer Loading ─────────────────────────────────────────────────────
 
   Widget _buildShimmerLoading(bool isDark, Color surfaceColor) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor = isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -934,16 +900,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             icon: const Icon(Icons.arrow_back_ios_new, size: 20),
             onPressed: () => context.pop(),
           ),
-          flexibleSpace: Shimmer.fromColors(
-            baseColor: baseColor,
-            highlightColor: highlightColor,
+          flexibleSpace: Skeletonizer(
+            enableSwitchAnimation: true,
             child: Container(color: Colors.white),
           ),
         ),
         SliverToBoxAdapter(
-          child: Shimmer.fromColors(
-            baseColor: baseColor,
-            highlightColor: highlightColor,
+          child: Skeletonizer(
+            enableSwitchAnimation: true,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -953,54 +917,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   // Avatar placeholder
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+                    child: CircleAvatar(radius: 35, backgroundColor: surfaceColor),
                   ),
                   const SizedBox(height: 12),
                   // Name
-                  Container(
-                    width: 150,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(width: 150, height: 22, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 6),
                   // Username
-                  Container(
-                    width: 100,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(height: 14, width: 100, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 10),
                   // Bio lines
-                  Container(
-                    width: double.infinity,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 6),
-                  Container(
-                    width: 200,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(height: 14, width: 200, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 16),
                   // Stats
                   Row(
@@ -1011,23 +940,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 40,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                            Container(height: 14, width: 40, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                             const SizedBox(height: 4),
-                            Container(
-                              width: 60,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                            Container(height: 14, width: 60, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(4))),
                           ],
                         ),
                       ),
@@ -1035,14 +950,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   ),
                   const SizedBox(height: 16),
                   // Button placeholder
-                  Container(
-                    width: double.infinity,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
+                  Container(width: double.infinity, height: 40, decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24))),
                 ],
               ),
             ),

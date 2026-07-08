@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -651,14 +651,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
   // ─── Shimmer Loading ─────────────────────────────────────────────────────
 
   Widget _buildShimmerLoading(bool isDark) {
-    final baseColor =
-        isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor =
-        isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 10,
@@ -670,46 +665,18 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.rtl,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                CircleAvatar(radius: 22, backgroundColor: boneColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Container(
-                        width: 150,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 150, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 6),
-                      Container(
-                        width: 100,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 100, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 6),
-                      Container(
-                        width: 180,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 180, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
                 ),

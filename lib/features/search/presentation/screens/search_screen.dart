@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
@@ -263,12 +263,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   }
 
   Widget _buildTrendingShimmer(bool isDark) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor = isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 8,
@@ -279,23 +276,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.rtl,
               children: [
-                Container(
-                  width: 180,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
+                Container(height: 14, width: 180, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                 const SizedBox(height: 8),
-                Container(
-                  width: 100,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
+                Container(height: 14, width: 100, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
               ],
             ),
           );
@@ -670,12 +653,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   }
 
   Widget _buildResultsShimmer(bool isDark) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor = isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 6,
@@ -686,46 +666,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.rtl,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                CircleAvatar(radius: 24, backgroundColor: boneColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 120, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 6),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: MediaQuery.of(context).size.width * 0.5, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
                 ),

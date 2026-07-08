@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -530,14 +530,9 @@ class _MessagesListScreenState extends ConsumerState<MessagesListScreen> {
   // ─── Shimmer Loading ──────────────────────────────────────────────────────
 
   Widget _buildShimmerLoading(bool isDark) {
-    final baseColor =
-        isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor =
-        isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 10,
@@ -548,37 +543,16 @@ class _MessagesListScreenState extends ConsumerState<MessagesListScreen> {
               textDirection: TextDirection.rtl,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                CircleAvatar(radius: 24, backgroundColor: boneColor),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Container(
-                        width: 140,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 140, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
                 ),

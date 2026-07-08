@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
@@ -163,7 +163,6 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
   // ── Tab Bar ────────────────────────────────────────────────────────────
 
   Widget _buildTabBar(ThemeData theme, bool isDark) {
-    final indicatorColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     return Container(
       color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       child: TabBar(
@@ -254,28 +253,22 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
     );
   }
 
-  // ── Shimmer Loading Skeleton ───────────────────────────────────────────
+  // ── Skeleton Loading ───────────────────────────────────────────────────
 
   Widget _buildShimmerLoading(bool isDark) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor =
-        isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 5,
-        itemBuilder: (context, index) {
-          return _buildShimmerSkeletonItem(isDark);
-        },
+        itemBuilder: (context, index) => _buildShimmerSkeletonItem(isDark),
       ),
     );
   }
 
   Widget _buildShimmerSkeletonItem(bool isDark) {
     final dividerColor = isDark ? AppColors.darkDivider : AppColors.lightDivider;
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
 
     return Column(
       children: [
@@ -286,14 +279,7 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
             textDirection: TextDirection.rtl,
             children: [
               // Avatar placeholder
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
+              CircleAvatar(radius: 22, backgroundColor: boneColor),
               const SizedBox(width: 12),
 
               // Content placeholders
@@ -306,77 +292,36 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
                     Row(
                       textDirection: TextDirection.rtl,
                       children: [
-                        Container(
-                          width: 80,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                        Container(height: 14, width: 80, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                         const SizedBox(width: 8),
-                        Container(
-                          width: 60,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                        Container(height: 14, width: 60, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       ],
                     ),
                     const SizedBox(height: 10),
                     // Content lines
-                    Container(
-                      width: double.infinity,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
+                    Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     const SizedBox(height: 8),
                     Container(
+                      height: 14,
                       width: MediaQuery.of(context).size.width * 0.7,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4)),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.4,
                       height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4)),
                     ),
                     const SizedBox(height: 14),
                     // Media placeholder
-                    Container(
-                      width: double.infinity,
-                      height: 180,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                    Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: boneColor, borderRadius: const BorderRadius.all(Radius.circular(16)))),
                     const SizedBox(height: 12),
                     // Actions row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(
                         4,
-                        (_) => Container(
-                          width: 50,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                        (_) => Container(width: 50, height: 20, decoration: BoxDecoration(color: boneColor, borderRadius: const BorderRadius.all(Radius.circular(4)))),
                       ),
                     ),
                   ],

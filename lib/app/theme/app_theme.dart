@@ -1,171 +1,64 @@
-import 'package:flutter/material.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'colors.dart';
-import 'typography.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class AppTheme {
-  static ThemeData get light {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: AppColors.lightBackground,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
-        secondary: AppColors.primary,
-        surface: AppColors.lightSurface,
-        onSurface: AppColors.lightTextPrimary,
-        error: AppColors.error,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.lightSurface,
-        foregroundColor: AppColors.lightTextPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        centerTitle: false,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-      ),
-      cardTheme: const CardThemeData(
-        color: AppColors.lightSurface,
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.lightDivider,
-        thickness: 0.5,
-        space: 0,
-      ),
-      textTheme: AppTypography.textTheme,
-      iconTheme: const IconThemeData(color: AppColors.lightTextPrimary),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.lightSurface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.lightTextSecondary,
-        type: BottomNavigationBarType.fixed,
-        elevation: 1,
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.lightBackground,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: AppColors.lightBorder, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.error, width: 1),
-        ),
-        hintStyle: const TextStyle(color: AppColors.lightTextSecondary, fontSize: 15),
-      ),
-      chipTheme: const ChipThemeData(
-        backgroundColor: AppColors.lightBackground,
-        labelStyle: TextStyle(color: AppColors.lightTextPrimary),
-        side: BorderSide(color: AppColors.lightBorder),
-      ),
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
-    );
-  }
+ThemeData lightTheme() {
+  final cairoText = GoogleFonts.cairoTextTheme(ThemeData.light().textTheme);
+  return FlexThemeData.light(
+    scheme: FlexScheme.blue,
+    useMaterial3: true,
+    fontFamily: 'Cairo',
+    textTheme: cairoText,
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF1DA1F2),
+      onPrimary: Colors.white,
+      secondary: Color(0xFF1DA1F2),
+      surface: Color(0xFFF5F8FA),
+      onSurface: Color(0xFF0F1419),
+      error: Color(0xFFF4212E),
+    ),
+    surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+    blendLevel: 4,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    swapLegacyOnMaterial3: true,
+    cupertinoOverrideTheme: const CupertinoThemeData(brightness: Brightness.light),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+  );
+}
 
-  static ThemeData get dark {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
-        secondary: AppColors.primary,
-        surface: AppColors.darkSurface,
-        onSurface: AppColors.darkTextPrimary,
-        error: AppColors.error,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.darkBackground,
-        foregroundColor: AppColors.darkTextPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-      ),
-      cardTheme: const CardThemeData(
-        color: AppColors.darkSurface,
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.darkDivider,
-        thickness: 0.5,
-        space: 0,
-      ),
-      textTheme: AppTypography.textTheme,
-      iconTheme: const IconThemeData(color: AppColors.darkTextPrimary),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.darkBackground,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.darkTextSecondary,
-        type: BottomNavigationBarType.fixed,
-        elevation: 1,
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.darkSurfaceDark,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: AppColors.darkBorder, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: AppColors.error, width: 1),
-        ),
-        hintStyle: const TextStyle(color: AppColors.darkTextSecondary, fontSize: 15),
-      ),
-      chipTheme: const ChipThemeData(
-        backgroundColor: AppColors.darkSurfaceDark,
-        labelStyle: TextStyle(color: AppColors.darkTextPrimary),
-        side: BorderSide(color: AppColors.darkBorder),
-      ),
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
-    );
-  }
+ThemeData darkTheme() {
+  final cairoText = GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme);
+  return FlexThemeData.dark(
+    scheme: FlexScheme.blue,
+    useMaterial3: true,
+    fontFamily: 'Cairo',
+    textTheme: cairoText,
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFF1DA1F2),
+      onPrimary: Colors.white,
+      secondary: Color(0xFF1DA1F2),
+      surface: Color(0xFF16181C),
+      onSurface: Color(0xFFE7E9EA),
+      error: Color(0xFFF4212E),
+    ),
+    surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+    blendLevel: 8,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    swapLegacyOnMaterial3: true,
+    cupertinoOverrideTheme: const CupertinoThemeData(brightness: Brightness.dark),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+  );
 }

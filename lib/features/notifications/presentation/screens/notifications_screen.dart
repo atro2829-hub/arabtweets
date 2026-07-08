@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/colors.dart';
@@ -427,12 +427,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   // ─── Shimmer Loading ─────────────────────────────────────────────────────
 
   Widget _buildShimmerLoading(bool isDark) {
-    final baseColor = isDark ? AppColors.darkSurfaceDark : Colors.grey[300]!;
-    final highlightColor = isDark ? AppColors.darkSurface : Colors.grey[100]!;
-
-    return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+    final boneColor = isDark ? AppColors.darkSurfaceDark : AppColors.lightSurface;
+    return Skeletonizer(
+      enableSwitchAnimation: true,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 8,
@@ -443,37 +440,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.rtl,
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                CircleAvatar(radius: 18, backgroundColor: boneColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Container(
-                        width: 200,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 200, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                       const SizedBox(height: 6),
-                      Container(
-                        width: 80,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
+                      Container(height: 14, width: 80, decoration: BoxDecoration(color: boneColor, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
                 ),
