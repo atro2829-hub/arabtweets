@@ -204,7 +204,7 @@ ThemeData darkTheme() {
       elevation: 4,
       shape: CircleBorder(),
     ),
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       labelColor: Color(0xFFFFFFFF),
       unselectedLabelColor: Color(0xFF71767B),
       indicatorColor: Color(0xFFFFFFFF),
