@@ -99,7 +99,7 @@ ThemeData lightTheme() {
       elevation: 4,
       shape: CircleBorder(),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelColor: Color(0xFF000000),
       unselectedLabelColor: Color(0xFF536471),
       indicatorColor: Color(0xFF000000),
