@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme/colors.dart';
-import '../data/models/reel_model.dart';
+import '../../data/models/reel_model.dart';
 import '../providers/reels_provider.dart';
 
 class ReelsScreen extends ConsumerStatefulWidget {

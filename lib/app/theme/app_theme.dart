@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -98,7 +99,7 @@ ThemeData lightTheme() {
       elevation: 4,
       shape: CircleBorder(),
     ),
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: TabBarTheme(
       labelColor: Color(0xFF000000),
       unselectedLabelColor: Color(0xFF536471),
       indicatorColor: Color(0xFF000000),
