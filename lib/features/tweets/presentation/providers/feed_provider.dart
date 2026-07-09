@@ -1,42 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../data/models/tweet_model.dart';
-
-// ─── Feed State ──────────────────────────────────────────────────────────────
-
-class FeedState {
-  final List<TweetModel> tweets;
-  final int offset;
-  final bool isLoadingMore;
-  final bool hasMore;
-
-  const FeedState({
-    this.tweets = const [],
-    this.offset = 0,
-    this.isLoadingMore = false,
-    this.hasMore = true,
-  });
-
-  FeedState copyWith({
-    List<TweetModel>? tweets,
-    int? offset,
-    bool? isLoadingMore,
-    bool? hasMore,
-  }) {
-    return FeedState(
-      tweets: tweets ?? this.tweets,
-      offset: offset ?? this.offset,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      hasMore: hasMore ?? this.hasMore,
-    );
-  }
-}
-
-// ─── Feed Notifier ───────────────────────────────────────────────────────────
 
 class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
   final _supabase = Supabase.instance.client;
@@ -56,6 +23,17 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return [];
 
+    final online = await CacheService.isOnline();
+
+    // If offline, load from cache
+    if (!online) {
+      final cached = await CacheService.instance.getFeed();
+      if (cached.isNotEmpty) {
+        return cached.map((e) => TweetModel.fromJson(e)).toList();
+      }
+      throw Exception('لا يوجد اتصال بالإنترنت');
+    }
+
     try {
       final response = await _supabase.rpc(
         'get_feed',
@@ -67,35 +45,48 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
       );
 
       final List<dynamic> data = response as List<dynamic>? ?? [];
+      if (data.length < ApiConstants.tweetsPerPage) _hasMore = false;
 
-      if (data.length < ApiConstants.tweetsPerPage) {
-        _hasMore = false;
+      final tweets = data.map((item) => TweetModel.fromJson(item as Map<String, dynamic>)).toList();
+
+      // Cache the feed
+      if (offset == 0) {
+        await CacheService.instance.saveFeed(
+          tweets.map((t) => {
+            'id': t.id, 'user_id': t.userId, 'content': t.content,
+            'media_urls': t.mediaUrls, 'parent_id': t.parentId,
+            'is_quote': t.isQuote, 'quote_tweet_id': t.quoteTweetId,
+            'reply_count': t.replyCount, 'retweet_count': t.retweetCount,
+            'like_count': t.likeCount, 'view_count': t.viewCount,
+            'bookmark_count': t.bookmarkCount, 'created_at': t.createdAt.toIso8601String(),
+            'username': t.username, 'display_name': t.displayName,
+            'avatar_url': t.avatarUrl, 'is_verified': t.isVerified,
+            'is_liked': t.isLiked, 'is_retweeted': t.isRetweeted,
+            'is_bookmarked': t.isBookmarked, 'is_following': t.isFollowing,
+          }).toList(),
+        );
       }
-
-      final tweets = data
-          .map((item) => TweetModel.fromJson(item as Map<String, dynamic>))
-          .toList();
 
       return tweets;
     } on PostgrestException catch (e) {
+      // On error, try cache
+      final cached = await CacheService.instance.getFeed();
+      if (cached.isNotEmpty) return cached.map((e) => TweetModel.fromJson(e)).toList();
       throw Exception('فشل في تحميل التغريدات: ${e.message}');
     } catch (e) {
+      final cached = await CacheService.instance.getFeed();
+      if (cached.isNotEmpty) return cached.map((e) => TweetModel.fromJson(e)).toList();
       throw Exception('حدث خطأ أثناء تحميل التغريدات');
     }
   }
 
-  /// Load the next page of tweets and append to the existing list.
   Future<void> loadMore() async {
     if (_isLoadingMore || !_hasMore) return;
-
     _isLoadingMore = true;
-
     try {
       final current = state.value ?? [];
       _currentOffset += ApiConstants.tweetsPerPage;
-
       final newTweets = await _fetchFeed(offset: _currentOffset);
-
       state = AsyncData([...current, ...newTweets]);
     } catch (e) {
       _currentOffset -= ApiConstants.tweetsPerPage;
@@ -104,13 +95,9 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
     }
   }
 
-  /// Whether we are currently loading more tweets (for UI indicator).
   bool get isLoadingMore => _isLoadingMore;
-
-  /// Whether there are more tweets to load.
   bool get hasMore => _hasMore;
 
-  /// Reset and reload the entire feed.
   Future<void> refresh() async {
     _currentOffset = 0;
     _hasMore = true;
@@ -119,24 +106,17 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
     state = AsyncData(await _fetchFeed(offset: 0));
   }
 
-  /// Toggle like on a tweet and update local state optimistically.
   Future<void> toggleLike(int tweetId) async {
     final currentTweets = state.value;
     if (currentTweets == null) return;
-
-    final tweetIndex = currentTweets.indexWhere((t) => t.id == tweetId);
-    if (tweetIndex == -1) return;
-
-    final tweet = currentTweets[tweetIndex];
+    final idx = currentTweets.indexWhere((t) => t.id == tweetId);
+    if (idx == -1) return;
+    final tweet = currentTweets[idx];
     final wasLiked = tweet.isLiked;
     final newLikeCount = wasLiked ? tweet.likeCount - 1 : tweet.likeCount + 1;
 
-    // Optimistic update
     final updatedTweets = List<TweetModel>.from(currentTweets);
-    updatedTweets[tweetIndex] = tweet.copyWith(
-      isLiked: !wasLiked,
-      likeCount: newLikeCount,
-    );
+    updatedTweets[idx] = tweet.copyWith(isLiked: !wasLiked, likeCount: newLikeCount);
     state = AsyncData(updatedTweets);
 
     try {
@@ -145,32 +125,23 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
         'p_user_id': _supabase.auth.currentUser!.id,
       });
     } catch (e) {
-      // Revert on error
       final revertedTweets = List<TweetModel>.from(currentTweets);
-      revertedTweets[tweetIndex] = tweet;
+      revertedTweets[idx] = tweet;
       state = AsyncData(revertedTweets);
     }
   }
 
-  /// Toggle retweet on a tweet and update local state optimistically.
   Future<void> toggleRetweet(int tweetId) async {
     final currentTweets = state.value;
     if (currentTweets == null) return;
-
-    final tweetIndex = currentTweets.indexWhere((t) => t.id == tweetId);
-    if (tweetIndex == -1) return;
-
-    final tweet = currentTweets[tweetIndex];
+    final idx = currentTweets.indexWhere((t) => t.id == tweetId);
+    if (idx == -1) return;
+    final tweet = currentTweets[idx];
     final wasRetweeted = tweet.isRetweeted;
-    final newRetweetCount =
-        wasRetweeted ? tweet.retweetCount - 1 : tweet.retweetCount + 1;
+    final newRetweetCount = wasRetweeted ? tweet.retweetCount - 1 : tweet.retweetCount + 1;
 
-    // Optimistic update
     final updatedTweets = List<TweetModel>.from(currentTweets);
-    updatedTweets[tweetIndex] = tweet.copyWith(
-      isRetweeted: !wasRetweeted,
-      retweetCount: newRetweetCount,
-    );
+    updatedTweets[idx] = tweet.copyWith(isRetweeted: !wasRetweeted, retweetCount: newRetweetCount);
     state = AsyncData(updatedTweets);
 
     try {
@@ -179,32 +150,23 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
         'p_user_id': _supabase.auth.currentUser!.id,
       });
     } catch (e) {
-      // Revert on error
       final revertedTweets = List<TweetModel>.from(currentTweets);
-      revertedTweets[tweetIndex] = tweet;
+      revertedTweets[idx] = tweet;
       state = AsyncData(revertedTweets);
     }
   }
 
-  /// Toggle bookmark on a tweet and update local state optimistically.
   Future<void> toggleBookmark(int tweetId) async {
     final currentTweets = state.value;
     if (currentTweets == null) return;
-
-    final tweetIndex = currentTweets.indexWhere((t) => t.id == tweetId);
-    if (tweetIndex == -1) return;
-
-    final tweet = currentTweets[tweetIndex];
+    final idx = currentTweets.indexWhere((t) => t.id == tweetId);
+    if (idx == -1) return;
+    final tweet = currentTweets[idx];
     final wasBookmarked = tweet.isBookmarked;
-    final newBookmarkCount =
-        wasBookmarked ? tweet.bookmarkCount - 1 : tweet.bookmarkCount + 1;
+    final newBookmarkCount = wasBookmarked ? tweet.bookmarkCount - 1 : tweet.bookmarkCount + 1;
 
-    // Optimistic update
     final updatedTweets = List<TweetModel>.from(currentTweets);
-    updatedTweets[tweetIndex] = tweet.copyWith(
-      isBookmarked: !wasBookmarked,
-      bookmarkCount: newBookmarkCount,
-    );
+    updatedTweets[idx] = tweet.copyWith(isBookmarked: !wasBookmarked, bookmarkCount: newBookmarkCount);
     state = AsyncData(updatedTweets);
 
     try {
@@ -213,14 +175,12 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
         'p_user_id': _supabase.auth.currentUser!.id,
       });
     } catch (e) {
-      // Revert on error
       final revertedTweets = List<TweetModel>.from(currentTweets);
-      revertedTweets[tweetIndex] = tweet;
+      revertedTweets[idx] = tweet;
       state = AsyncData(revertedTweets);
     }
   }
 
-  /// Create a new tweet and prepend it to the feed list.
   Future<void> createTweet({
     required String content,
     List<String> mediaUrls = const [],
@@ -239,7 +199,6 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
         'p_quote_tweet_id': quoteTweetId,
       });
 
-      // create_tweet now returns a TABLE (list of rows with tweet + profile data)
       final List<dynamic> data = response as List<dynamic>? ?? [];
       if (data.isNotEmpty) {
         final newTweet = TweetModel.fromJson(data[0] as Map<String, dynamic>);
@@ -252,10 +211,6 @@ class FeedNotifier extends AsyncNotifier<List<TweetModel>> {
   }
 }
 
-// ─── Providers ───────────────────────────────────────────────────────────────
-
-/// Primary feed provider – watches the list of tweets for the home feed.
-final feedProvider =
-    AsyncNotifierProvider.autoDispose<FeedNotifier, List<TweetModel>>(
+final feedProvider = AsyncNotifierProvider.autoDispose<FeedNotifier, List<TweetModel>>(
   FeedNotifier.new,
 );

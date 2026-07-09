@@ -8,6 +8,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'app/router/app_router.dart';
 import 'app/theme/app_theme.dart';
 import 'core/constants/api_constants.dart';
+import 'core/services/cache_service.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
 
 void main() async {
@@ -21,8 +22,8 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
     ),
   );
 
@@ -34,8 +35,11 @@ void main() async {
     ),
   );
 
+  // Pre-initialize cache
+  await CacheService.instance.getFeed();
+
   final prefs = await SharedPreferences.getInstance();
-  final isDark = prefs.getBool('is_dark_mode') ?? false;
+  final isDark = prefs.getBool('is_dark_mode') ?? true; // Default dark like X
 
   runApp(
     ProviderScope(
