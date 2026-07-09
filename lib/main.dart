@@ -13,13 +13,11 @@ import 'features/settings/presentation/screens/settings_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -28,7 +26,6 @@ void main() async {
     ),
   );
 
-  // Initialize Supabase
   await Supabase.initialize(
     url: ApiConstants.supabaseUrl,
     publishableKey: ApiConstants.supabaseAnonKey,
@@ -37,7 +34,6 @@ void main() async {
     ),
   );
 
-  // Initialize shared preferences
   final prefs = await SharedPreferences.getInstance();
   final isDark = prefs.getBool('is_dark_mode') ?? false;
 
@@ -50,7 +46,6 @@ void main() async {
 
 class ArabtweetsApp extends ConsumerStatefulWidget {
   final bool isDark;
-
   const ArabtweetsApp({super.key, required this.isDark});
 
   @override
@@ -59,28 +54,16 @@ class ArabtweetsApp extends ConsumerStatefulWidget {
 
 class _ArabtweetsAppState extends ConsumerState<ArabtweetsApp> {
   @override
-  void initState() {
-    super.initState();
-    // Initialize theme with stored preference
-  }
-
-  @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
 
     return MaterialApp.router(
       title: ApiConstants.appName,
       debugShowCheckedModeBanner: false,
-
-      // Theme
       theme: lightTheme(),
       darkTheme: darkTheme(),
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-
-      // Router
       routerConfig: appRouter,
-
-      // Builder for responsive breakpoints and RTL direction
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: Directionality(
           textDirection: TextDirection.rtl,

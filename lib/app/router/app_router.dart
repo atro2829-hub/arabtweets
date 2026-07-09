@@ -26,7 +26,6 @@ import '../../features/tweets/presentation/screens/tweet_detail_screen.dart';
 
 class MainNavigationShell extends ConsumerStatefulWidget {
   final Widget child;
-
   const MainNavigationShell({super.key, required this.child});
 
   @override
@@ -36,150 +35,136 @@ class MainNavigationShell extends ConsumerStatefulWidget {
 class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   int _currentIndex = 0;
 
+  int _getTabForLocation(String location) {
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/reels')) return 1;
+    if (location.startsWith('/search')) return 2;
+    if (location.startsWith('/notifications')) return 3;
+    if (location.startsWith('/messages')) return 4;
+    if (location.startsWith('/profile') && !location.contains('/profile/')) return 5;
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     final user = auth.user;
     final theme = Theme.of(context);
-    final unreadNotif = 0; // Will be connected to notifications provider
+
+    // Update current index based on route
+    final location = GoRouterState.of(context).matchedLocation;
+    _currentIndex = _getTabForLocation(location);
+
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
 
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: theme.scaffoldBackgroundColor,
+          color: bgColor,
           border: Border(
             top: BorderSide(
-              color: theme.dividerColor,
+              color: isDark ? AppColors.darkBorder : AppColors.lightDivider,
               width: 0.5,
             ),
           ),
         ),
         child: SafeArea(
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() => _currentIndex = index);
-              switch (index) {
-                case 0: context.go('/home');
-                case 1: context.go('/reels');
-                case 2: context.go('/search');
-                case 3: context.go('/notifications');
-                case 4: context.go('/messages');
-                case 5: context.go('/profile');
-              }
-            },
-            type: BottomNavigationBarType.fixed,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  _currentIndex == 0 ? Icons.home_filled : Icons.home_outlined,
-                  color: _currentIndex == 0 ? AppColors.primary : theme.iconTheme.color,
-                  size: 28,
-                ),
-                label: 'الرئيسية',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  _currentIndex == 1 ? Icons.play_circle_filled : Icons.play_circle_outline,
-                  color: _currentIndex == 1 ? AppColors.primary : theme.iconTheme.color,
-                  size: 28,
-                ),
-                label: 'ريلز',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  _currentIndex == 2 ? Icons.search_rounded : Icons.search_outlined,
-                  color: _currentIndex == 2 ? AppColors.primary : theme.iconTheme.color,
-                  size: 28,
-                ),
-                label: 'البحث',
-              ),
-              BottomNavigationBarItem(
-                icon: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Icon(
-                      _currentIndex == 3
-                          ? Icons.notifications_rounded
-                          : Icons.notifications_outlined,
-                      color: _currentIndex == 3 ? AppColors.primary : theme.iconTheme.color,
-                      size: 28,
-                    ),
-                    if (unreadNotif > 0)
-                      Positioned(
-                        left: 4,
-                        top: -2,
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                          child: Text(
-                            unreadNotif > 9 ? '9+' : '$unreadNotif',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                label: 'الإشعارات',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  _currentIndex == 4 ? Icons.mail_rounded : Icons.mail_outline_rounded,
-                  color: _currentIndex == 4 ? AppColors.primary : theme.iconTheme.color,
-                  size: 28,
-                ),
-                label: 'الرسائل',
-              ),
-              BottomNavigationBarItem(
-                icon: _buildProfileIcon(user, theme),
-                label: 'الملف الشخصي',
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, Icons.home_outlined, Icons.home_filled, 'الرئيسية', '/home'),
+                _buildNavItem(1, Icons.play_circle_outline, Icons.play_circle_filled, 'ريلز', '/reels'),
+                _buildNavItem(2, Icons.search_outlined, Icons.search_rounded, 'البحث', '/search'),
+                _buildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'إشعارات', '/notifications'),
+                _buildNavItem(4, Icons.mail_outline_rounded, Icons.mail_rounded, 'رسائل', '/messages'),
+                _buildProfileNavItem(5, user, theme),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileIcon(dynamic user, ThemeData theme) {
-    if (user != null && user.avatarUrl.isNotEmpty) {
-      return ClipOval(
-        child: FadeInImage.assetNetwork(
-          placeholder: 'assets/images/placeholder.png',
-          image: user.fullAvatarUrl,
-          width: 28,
-          height: 28,
-          fit: BoxFit.cover,
-          imageErrorBuilder: (_, _, _) => _buildDefaultAvatar(user, theme),
+  Widget _buildNavItem(int index, IconData outlinedIcon, IconData filledIcon, String label, String path) {
+    final isActive = _currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isActive ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (_currentIndex != index) context.go(path);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Icon(
+          isActive ? filledIcon : outlinedIcon,
+          color: color,
+          size: 26,
         ),
-      );
-    }
-    return _buildDefaultAvatar(user, theme);
+      ),
+    );
   }
 
-  Widget _buildDefaultAvatar(dynamic user, ThemeData theme) {
+  Widget _buildProfileNavItem(int index, dynamic user, ThemeData theme) {
+    final isActive = _currentIndex == index;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (_currentIndex != index) context.go('/profile');
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: isActive
+            ? Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary, width: 2.5),
+                ),
+                child: ClipOval(
+                  child: _buildAvatarIcon(user, 22, theme),
+                ),
+              )
+            : _buildAvatarIcon(user, 26, theme),
+      ),
+    );
+  }
+
+  Widget _buildAvatarIcon(dynamic user, double size, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+    if (user != null && user.avatarUrl.isNotEmpty) {
+      return FadeInImage.assetNetwork(
+        placeholder: 'assets/images/placeholder.png',
+        image: user.fullAvatarUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        imageErrorBuilder: (_, __, ___) => _buildDefaultAvatar(user, size, isDark),
+      );
+    }
+    return _buildDefaultAvatar(user, size, isDark);
+  }
+
+  Widget _buildDefaultAvatar(dynamic user, double size, bool isDark) {
     final name = user?.displayName ?? user?.username ?? '?';
     return CircleAvatar(
-      radius: 14,
-      backgroundColor: _currentIndex == 5 ? AppColors.primary : theme.colorScheme.surface,
+      radius: size / 2,
+      backgroundColor: isDark ? AppColors.darkSurfaceDark : AppColors.lightBackground,
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
         style: TextStyle(
-          color: _currentIndex == 5 ? Colors.white : theme.iconTheme.color,
+          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
           fontWeight: FontWeight.bold,
-          fontSize: 13,
+          fontSize: size * 0.45,
         ),
       ),
     );
@@ -194,9 +179,25 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/welcome',
-  debugLogDiagnostics: true,
+  debugLogDiagnostics: false,
   redirect: (context, state) {
-    // We let AuthGate handle navigation, so no redirect needed
+    final authState = ProviderScope.containerOf(context).read(authProvider);
+    final isAuth = authState.state == AuthStatus.authenticated;
+    final isAuthRoute = state.matchedLocation.startsWith('/welcome') ||
+        state.matchedLocation.startsWith('/login') ||
+        state.matchedLocation.startsWith('/register');
+
+    // Redirect /edit-profile to /profile/edit
+    if (state.matchedLocation == '/edit-profile') {
+      return '/profile/edit';
+    }
+
+    if (!isAuth && !isAuthRoute) {
+      return '/welcome';
+    }
+    if (isAuth && isAuthRoute) {
+      return '/home';
+    }
     return null;
   },
   routes: [
@@ -221,39 +222,27 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/home',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: HomeFeedScreen(),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: HomeFeedScreen()),
         ),
-            GoRoute(
+        GoRoute(
           path: '/reels',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ReelsScreen(),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: ReelsScreen()),
         ),
         GoRoute(
           path: '/search',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: SearchScreen(),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: SearchScreen()),
         ),
         GoRoute(
           path: '/notifications',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: NotificationsScreen(),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: NotificationsScreen()),
         ),
         GoRoute(
           path: '/messages',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: MessagesListScreen(),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: MessagesListScreen()),
         ),
         GoRoute(
           path: '/profile',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ProfileScreen(userId: 'me'),
-          ),
+          pageBuilder: (context, state) => const NoTransitionPage(child: ProfileScreen(userId: 'me')),
         ),
       ],
     ),
@@ -326,43 +315,3 @@ final appRouter = GoRouter(
     ),
   ],
 );
-
-// ─── Auth Gate ──────────────────────────────────────────────────────────────
-
-class AuthGate extends ConsumerWidget {
-  const AuthGate({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
-
-    switch (auth.state) {
-      case AuthStatus.initial:
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
-        );
-      case AuthStatus.loading:
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
-        );
-      case AuthStatus.authenticated:
-        return const HomeFeedScreen();
-      case AuthStatus.unauthenticated:
-        return const WelcomeScreen();
-      case AuthStatus.error:
-        // Show error then navigate to welcome
-        Future.microtask(() {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(auth.errorMessage ?? 'حدث خطأ')),
-            );
-          }
-        });
-        return const WelcomeScreen();
-    }
-  }
-}

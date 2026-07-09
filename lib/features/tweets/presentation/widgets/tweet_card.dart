@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 
 import '../../../../app/theme/colors.dart';
@@ -80,7 +81,7 @@ class _TweetCardState extends State<TweetCard> {
                       textDirection: TextDirection.rtl,
                       children: [
                         // Top row: name, username, time, more button
-                        _buildHeader(tweet, theme, textSecondary),
+                        _buildHeader(tweet, theme, textSecondary, context),
                         const SizedBox(height: 4),
 
                         // Tweet text content with hashtag/mention highlighting
@@ -128,7 +129,7 @@ class _TweetCardState extends State<TweetCard> {
 
     return GestureDetector(
       onTap: () {
-        // Navigate to profile – could use go_router here
+        context.push('/profile/${tweet.userId}');
       },
       child: CircleAvatar(
         radius: 22,
@@ -152,49 +153,52 @@ class _TweetCardState extends State<TweetCard> {
   // ── Header (name, username, time, more) ───────────────────────────────
 
   Widget _buildHeader(
-      TweetModel tweet, ThemeData theme, Color textSecondary) {
+      TweetModel tweet, ThemeData theme, Color textSecondary, BuildContext context) {
     return Row(
       textDirection: TextDirection.rtl,
       children: [
         // Display name
         Flexible(
-          child: Row(
-            textDirection: TextDirection.rtl,
-            children: [
-              Flexible(
-                child: Text(
-                  tweet.displayName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: theme.colorScheme.onSurface,
+          child: GestureDetector(
+            onTap: () => context.push('/profile/${tweet.userId}'),
+            child: Row(
+              textDirection: TextDirection.rtl,
+              children: [
+                Flexible(
+                  child: Text(
+                    tweet.displayName,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
                 ),
-              ),
-              if (tweet.isVerified) ...[
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.verified,
-                  size: 18,
-                  color: AppColors.verified,
-                ),
+                if (tweet.isVerified) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.verified,
+                    size: 18,
+                    color: AppColors.verified,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         const SizedBox(width: 6),
 
         // Username
-        Text(
-          '@${tweet.username}',
-          style: TextStyle(
-            fontSize: 13,
-            color: textSecondary,
+        GestureDetector(
+          onTap: () => context.push('/profile/${tweet.userId}'),
+          child: Text(
+            '@${tweet.username}',
+            style: TextStyle(fontSize: 13, color: textSecondary),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
         ),
         const SizedBox(width: 6),
 
