@@ -6,9 +6,17 @@ import 'dart:ui';
 class AppColors {
   AppColors._();
 
-  // ─── Brand (minimal usage - only for primary buttons/indicators) ─
-  static const primary = Color(0xFFFFFFFF);      // White is the accent
-  static const primaryDark = Color(0xFFE0E0E0);
+  // ─── Brand ─────────────────────────────────────────────────
+  // In B&W theme, primary is used for buttons (white in dark, black in light)
+  // The theme system handles the actual button color, so primary here
+  // is kept for backward compatibility in screens not yet refactored.
+  static const primary = Color(0xFF000000);
+  static const primaryDark = Color(0xFF000000);
+  static const primaryLight = Color(0xFFF7F9F9);
+
+  // Backward compat aliases
+  static const lightBackground = Color(0xFFFFFFFF);
+  static const darkSurfaceDark = Color(0xFF1D1F23);
 
   // ─── Action Colors (only for action buttons, not themes) ────────
   static const like = Color(0xFFF91880);
@@ -17,7 +25,6 @@ class AppColors {
   static const retweetBackground = Color(0x1A00BA7C);
 
   // ─── Light Theme ────────────────────────────────────────────────
-  static const lightBackground = Color(0xFFFFFFFF);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightCard = Color(0xFFF7F9F9);
   static const lightTextPrimary = Color(0xFF000000);
@@ -45,6 +52,7 @@ class AppColors {
   static const warning = Color(0xFFFFAD1F);
   static const error = Color(0xFFF4212E);
   static const info = Color(0xFF536471);
+  static const message = Color(0xFF000000); // alias
 
   // ─── Verified ───────────────────────────────────────────────────
   static const verified = Color(0xFF1D9BF0);

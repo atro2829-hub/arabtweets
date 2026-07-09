@@ -206,7 +206,7 @@ class _ComposeTweetSheetState extends ConsumerState<ComposeTweetSheet> {
                       // Current user avatar
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: isDark ? AppColors.darkSurfaceDark : AppColors.lightBackground,
+                        backgroundColor: AppColors.card(isDark),
                         backgroundImage: (user?.fullAvatarUrl ?? '').isNotEmpty ? CachedNetworkImageProvider(user!.fullAvatarUrl) : null,
                         child: (user?.fullAvatarUrl ?? '').isEmpty
                             ? Text(user?.displayName.isNotEmpty == true ? user!.displayName[0] : '?', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../data/models/reel_model.dart';
+import '../../data/models/reel_model.dart';
 
 class ReelsNotifier extends AsyncNotifier<List<ReelModel>> {
   final _supabase = Supabase.instance.client;
