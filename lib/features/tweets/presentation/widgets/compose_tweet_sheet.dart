@@ -156,7 +156,9 @@ class _ComposeTweetSheetState extends ConsumerState<ComposeTweetSheet> {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
-                    color: _canSubmit ? AppColors.primary : AppColors.primary.withValues(alpha: 0.5),
+                    color: _canSubmit
+                        ? (isDark ? Colors.white : Colors.black)
+                        : (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3)),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Material(
@@ -167,8 +169,8 @@ class _ComposeTweetSheetState extends ConsumerState<ComposeTweetSheet> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         child: _isSubmitting
-                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : const Text('غرّد', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                            ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: isDark ? Colors.black : Colors.white))
+                            : Text('غرّد', style: TextStyle(color: isDark ? Colors.black : Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                       ),
                     ),
                   ),
@@ -301,6 +303,8 @@ class _ComposeTweetSheetState extends ConsumerState<ComposeTweetSheet> {
   }
 
   Widget _buildActionIcon(IconData icon, VoidCallback onTap) {
-    return IconButton(onPressed: onTap, icon: Icon(icon, color: AppColors.primary, size: 22), splashRadius: 24, constraints: const BoxConstraints(minWidth: 40, minHeight: 40), padding: EdgeInsets.zero);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return IconButton(onPressed: onTap, icon: Icon(icon, color: AppColors.textPrimary(isDark), size: 22), splashRadius: 24, constraints: const BoxConstraints(minWidth: 40, minHeight: 40), padding: EdgeInsets.zero);
   }
 }

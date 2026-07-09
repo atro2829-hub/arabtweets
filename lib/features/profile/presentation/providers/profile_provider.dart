@@ -120,16 +120,6 @@ class UserRepliesNotifier extends AsyncNotifier<List<TweetModel>> {
   Future<List<TweetModel>> _fetchUserReplies(String userId) async {
     final currentUserId = _supabase.auth.currentUser?.id;
     try {
-      final response = await _supabase.rpc(
-        'get_feed', // Reuse get_feed-like function for replies
-        params: {
-          'p_user_id': currentUserId,
-          'p_limit': ApiConstants.tweetsPerPage,
-          'p_offset': 0,
-        },
-      );
-
-      // Fallback: fetch replies directly
       final tweetsResp = await _supabase
           .from('tweets')
           .select('''
@@ -149,6 +139,10 @@ class UserRepliesNotifier extends AsyncNotifier<List<TweetModel>> {
         tweetMap['display_name'] = profile['display_name'] as String? ?? '';
         tweetMap['avatar_url'] = profile['avatar_url'] as String? ?? '';
         tweetMap['is_verified'] = profile['is_verified'] as bool? ?? false;
+        tweetMap['is_liked'] = false;
+        tweetMap['is_retweeted'] = false;
+        tweetMap['is_bookmarked'] = false;
+        tweetMap['is_following'] = false;
         return TweetModel.fromJson(tweetMap);
       }).toList();
     } catch (e) {

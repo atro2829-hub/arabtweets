@@ -38,7 +38,7 @@ class _ReelsScreenState extends ConsumerState<ReelsScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: reelsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white54)),
         error: (_, __) => _buildEmptyState(isDark),
         data: (reels) {
           if (reels.isEmpty) return _buildEmptyState(isDark);
@@ -98,10 +98,10 @@ class _ReelsScreenState extends ConsumerState<ReelsScreen> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.textPrimary(isDark).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.video_library_outlined, size: 56, color: AppColors.primary),
+            child: Icon(Icons.video_library_outlined, size: 56, color: AppColors.textPrimary(isDark)),
           ),
           const SizedBox(height: 24),
           Text(
@@ -125,11 +125,11 @@ class _ReelsScreenState extends ConsumerState<ReelsScreen> {
             onPressed: () {
               // TODO: Open reel creation screen
             },
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('إنشاء ريلز', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.add, color: isDark ? Colors.black : Colors.white),
+            label: Text('إنشاء ريلز', style: TextStyle(color: isDark ? Colors.black : Colors.white, fontWeight: FontWeight.w600)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: isDark ? Colors.white : Colors.black,
+              foregroundColor: isDark ? Colors.black : Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
             ),
@@ -326,7 +326,7 @@ class _ReelPageState extends State<_ReelPage> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [const Color(0xFF1DA1F2).withValues(alpha: 0.3), Colors.black87],
+          colors: [Colors.white24, Colors.black87],
         ),
       ),
       child: Center(

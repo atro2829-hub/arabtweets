@@ -70,7 +70,7 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen> with SingleTick
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => ComposeTweetSheet.show(context: context),
             icon: SvgPicture.asset(AppIcons.compose, width: 24, height: 24, colorFilter: ColorFilter.mode(AppColors.textPrimary(isDark), BlendMode.srcIn)),
           ),
         ],

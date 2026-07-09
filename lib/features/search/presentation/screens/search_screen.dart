@@ -349,7 +349,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           color: surfaceColor,
           child: TabBar(
             controller: _tabController,
-            indicatorColor: AppColors.primary,
+            indicatorColor: AppColors.textPrimary(isDark),
             indicatorWeight: 3,
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: textPrimary,
@@ -560,12 +560,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: user.isFollowing
                       ? Colors.transparent
-                      : AppColors.primary,
+                      : (isDark ? Colors.white : Colors.black),
                   foregroundColor: user.isFollowing
                       ? (isDark
                           ? AppColors.darkTextPrimary
                           : AppColors.lightTextPrimary)
-                      : Colors.white,
+                      : (isDark
+                          ? Colors.black
+                          : Colors.white),
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   shape: RoundedRectangleBorder(

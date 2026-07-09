@@ -109,7 +109,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
 
     return TabBar(
       controller: _tabController,
-      indicatorColor: AppColors.primary,
+      indicatorColor: AppColors.textPrimary(isDark),
       indicatorWeight: 3,
       indicatorSize: TabBarIndicatorSize.tab,
       labelColor: textPrimary,
@@ -198,8 +198,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         color: notif.isRead
             ? Colors.transparent
             : (isDark
-                ? AppColors.primary.withValues(alpha: 0.05)
-                : AppColors.primaryLight),
+                ? AppColors.textPrimary(isDark).withValues(alpha: 0.05)
+                : AppColors.textPrimary(isDark).withValues(alpha: 0.05)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           textDirection: TextDirection.rtl,
@@ -267,7 +267,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       width: 10,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: AppColors.textPrimary(isDark),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: surfaceColor,
@@ -314,7 +314,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                           text: '@${notif.fromUsername}',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
+                            color: AppColors.textPrimary(isDark),
                           ),
                         ),
                         const WidgetSpan(child: SizedBox(width: 4)),
@@ -531,8 +531,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             icon: const Icon(Icons.refresh, size: 18),
             label: const Text('إعادة المحاولة'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
+              foregroundColor: AppColors.textPrimary(isDark),
+              side: BorderSide(color: AppColors.textPrimary(isDark)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
