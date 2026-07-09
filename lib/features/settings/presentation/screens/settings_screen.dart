@@ -631,7 +631,7 @@ class SettingsScreen extends ConsumerWidget {
                 _SettingsTile(
                   icon: Icons.info_outline,
                   iconColor: AppColors.primary,
-                  title: 'عن Arabtweets',
+                  title: 'عن AdenTweet',
                   textPrimary: textPrimary,
                   textSecondary: textSecondary,
                   trailing: Icon(Icons.chevron_left, color: textSecondary, size: 20),

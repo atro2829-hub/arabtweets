@@ -121,23 +121,24 @@ class _HomeFeedScreenState extends ConsumerState<HomeFeedScreen>
       title: Row(
         textDirection: TextDirection.rtl,
         children: [
-          // Arabtweets icon/logo on the right (RTL)
-          Container(
+          // AdenTweet icon/logo on the right (RTL)
+          Image.asset(
+            'assets/icons/app_icon_transparent.png',
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.auto_awesome,
-              color: Colors.white,
-              size: 20,
+            errorBuilder: (_, __, ___) => Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
             ),
           ),
           const SizedBox(width: 10),
           Text(
-            'عرب تغريدات',
+            'AdenTweet',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
               fontSize: 19,

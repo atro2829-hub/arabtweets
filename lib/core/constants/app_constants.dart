@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = 'Arabtweets';
+  static const String appName = 'AdenTweet';
   static const String appTagline = 'تغريد بالعربية';
   
   // Notification types

@@ -90,7 +90,7 @@ class AboutScreen extends StatelessWidget {
 
             // ── App Name ─────────────────────────────────────────────────
             Text(
-              'Arabtweets',
+              'AdenTweet',
               style: TextStyle(
                 fontFamily: 'Cairo',
                 fontSize: 32,

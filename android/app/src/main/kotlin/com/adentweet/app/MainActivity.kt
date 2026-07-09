@@ -1,4 +1,4 @@
-package com.arabtweets.arabtweets
+package com.adentweet.app
 
 import io.flutter.embedding.android.FlutterActivity
 

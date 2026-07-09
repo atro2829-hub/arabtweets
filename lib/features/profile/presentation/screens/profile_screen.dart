@@ -565,7 +565,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: () => context.push('/edit-profile'),
+            onPressed: () => context.push('/profile/edit'),
             style: OutlinedButton.styleFrom(
               foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               side: BorderSide(

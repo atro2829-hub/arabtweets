@@ -39,20 +39,20 @@ void main() async {
 
   runApp(
     ProviderScope(
-      child: ArabtweetsApp(isDark: isDark),
+      child: AdenTweetApp(isDark: isDark),
     ),
   );
 }
 
-class ArabtweetsApp extends ConsumerStatefulWidget {
+class AdenTweetApp extends ConsumerStatefulWidget {
   final bool isDark;
-  const ArabtweetsApp({super.key, required this.isDark});
+  const AdenTweetApp({super.key, required this.isDark});
 
   @override
-  ConsumerState<ArabtweetsApp> createState() => _ArabtweetsAppState();
+  ConsumerState<AdenTweetApp> createState() => _AdenTweetAppState();
 }
 
-class _ArabtweetsAppState extends ConsumerState<ArabtweetsApp> {
+class _AdenTweetAppState extends ConsumerState<AdenTweetApp> {
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);

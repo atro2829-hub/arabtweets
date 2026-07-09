@@ -212,7 +212,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 // ── Title ───────────────────────────────────────────────
                 Text(
-                  'إنشاء حسابك في Arabtweets',
+                  'إنشاء حسابك في AdenTweet',
                   style: GoogleFonts.cairo(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,

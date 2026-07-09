@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const appName = 'Arabtweets';
+  static const appName = 'AdenTweet';
   static const supabaseUrl = 'https://buvcyaxgxrbjdikefsyq.supabase.co';
   static const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1dmN5YXhneHJiamRpa2Vmc3lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MjIxOTMsImV4cCI6MjA5OTA5ODE5M30.LjWQ-7DvXfuejOdVM6Ks13KCPn-sE_wgRgr0ES-TIOk';
   static const storageBucketAvatars = 'avatars';

@@ -1,4 +1,4 @@
--- Arabtweets Database Schema for Supabase
+-- AdenTweet Database Schema for Supabase
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

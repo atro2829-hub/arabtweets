@@ -58,7 +58,7 @@ class WelcomeScreen extends StatelessWidget {
 
                 // ── Title ─────────────────────────────────────────────────
                 Text(
-                  'Arabtweets',
+                  'AdenTweet',
                   style: GoogleFonts.cairo(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.arabtweets.arabtweets"
+    namespace = "com.adentweet.app"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
@@ -15,11 +15,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.arabtweets.arabtweets"
+        applicationId = "com.adentweet.app"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "2.0.0"
     }
 
     buildTypes {

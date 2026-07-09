@@ -109,7 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // ── Title ───────────────────────────────────────────────
                 Text(
-                  'تسجيل الدخول إلى Arabtweets',
+                  'تسجيل الدخول إلى AdenTweet',
                   style: GoogleFonts.cairo(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
